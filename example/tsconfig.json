@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "react-native-alarmkit": ["../src/index"],
+      "react-native-alarmkit/*": ["../src/*"]
+    }
+  }
+}
