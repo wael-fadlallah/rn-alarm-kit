@@ -1,37 +1,27 @@
-import { useEvent } from 'expo';
-import ReactNativeAlarmkit, { ReactNativeAlarmkitView } from 'react-native-alarmkit';
+import ReactNativeAlarmkit from 'react-native-alarmkit';
 import { Button, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 export default function App() {
-  const onChangePayload = useEvent(ReactNativeAlarmkit, 'onChange');
+  const requestAuthorization = async () => {
+    try {
+      const granted = await ReactNativeAlarmkit.requestAuthorization();
+      console.log('Authorization result:', granted);
+      if (granted) 
+        console.log('Authorization granted');
+    } catch (error) {
+      console.error('Authorization denied', error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
         <Text style={styles.header}>Module API Example</Text>
-        <Group name="Constants">
-          <Text>{ReactNativeAlarmkit.PI}</Text>
-        </Group>
         <Group name="Functions">
           <Text>{ReactNativeAlarmkit.hello()}</Text>
         </Group>
-        <Group name="Async functions">
-          <Button
-            title="Set value"
-            onPress={async () => {
-              await ReactNativeAlarmkit.setValueAsync('Hello from JS!');
-            }}
-          />
-        </Group>
-        <Group name="Events">
-          <Text>{onChangePayload?.value}</Text>
-        </Group>
-        <Group name="Views">
-          <ReactNativeAlarmkitView
-            url="https://www.example.com"
-            onLoad={({ nativeEvent: { url } }) => console.log(`Loaded: ${url}`)}
-            style={styles.view}
-          />
+        <Group name="Request Authorization">
+          <Button title="Request Authorization" onPress={requestAuthorization} />
         </Group>
       </ScrollView>
     </SafeAreaView>
