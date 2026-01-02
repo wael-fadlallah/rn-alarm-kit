@@ -27,7 +27,7 @@ public class ReactNativeAlarmkitModule: Module {
     
     
     
-    AsyncFunction("scheduleAlarm") { (hour: Int, minute: Int, repeats: Bool) in
+    AsyncFunction("scheduleAlarm") { (hour: Int, minute: Int, repeatDays: [Int]?) in
       do {
         
         let id = UUID()
@@ -47,8 +47,13 @@ public class ReactNativeAlarmkitModule: Module {
           hour: hour,
           minute: minute
         )
+        let cadence: Alarm.Schedule.Relative.Recurrence = (repeatDays != nil && !repeatDays!.isEmpty)
+        ? .weekly(weekdayFromInt(days: repeatDays!))
+        : .never
+        
         let schedule = Alarm.Schedule.relative(.init(
           time: time,
+          repeats: cadence
         ))
 
         let alarmConfiguration = AlarmManager.AlarmConfiguration(
@@ -75,7 +80,18 @@ public class ReactNativeAlarmkitModule: Module {
           if case .relative(let relativeSchedule) = alarm.schedule {
             let hour = relativeSchedule.time.hour
             let minute = relativeSchedule.time.minute
-            scheduleInfo = String(format: "%02d:%02d", hour, minute)
+            let timeString = String(format: "%02d:%02d", hour, minute)
+            
+            // Check repeats
+            switch relativeSchedule.repeats {
+            case .never:
+              scheduleInfo = "\(timeString) (Once)"
+            case .weekly(let weekdays):
+              let dayNames = weekdays.map { weekdayToString($0) }.joined(separator: ", ")
+              scheduleInfo = "\(timeString) (\(dayNames))"
+            @unknown default:
+              scheduleInfo = timeString
+            }
           }
           
           return [
@@ -109,4 +125,37 @@ public class ReactNativeAlarmkitModule: Module {
 
 
   }
+  
+  private func weekdayToString(_ weekday: Locale.Weekday) -> String {
+    switch weekday {
+    case .sunday: return "Sun"
+    case .monday: return "Mon"
+    case .tuesday: return "Tue"
+    case .wednesday: return "Wed"
+    case .thursday: return "Thu"
+    case .friday: return "Fri"
+    case .saturday: return "Sat"
+    @unknown default: return "Unknown"
+    }
+  }
+  
+  private func weekdayFromInt(days: [Int]) -> [Locale.Weekday] {
+    if !days.isEmpty {
+      let weekdays = days.compactMap { day -> Locale.Weekday? in
+        switch day {
+          case 1: return .sunday
+          case 2: return .monday
+          case 3: return .tuesday
+          case 4: return .wednesday
+          case 5: return .thursday
+          case 6: return .friday
+          case 7: return .saturday
+          default: return nil
+        }
+      }
+      return weekdays
+    }
+    return []
+  }
 }
+

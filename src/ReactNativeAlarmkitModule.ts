@@ -7,7 +7,7 @@ declare class ReactNativeAlarmkitModule extends NativeModule<ReactNativeAlarmkit
   scheduleAlarm(
     hour: number,
     minute: number,
-    repeats: boolean
+    repeats: number[]
   ): Promise<string>;
   listAlarms(): Promise<[]>;
   cancelAlarm(id: string): Promise<void>; // TODO: implement in native code

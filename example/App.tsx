@@ -28,7 +28,7 @@ export default function App() {
       const alarmId = await ReactNativeAlarmkit.scheduleAlarm(
         parseInt(time.hour),
         parseInt(time.minute),
-        true
+        [1, 2, 3, 4, 5, 6, 7]
       );
       console.log("Alarm scheduled with ID:", alarmId);
       setTime({ hour: "", minute: "" });
