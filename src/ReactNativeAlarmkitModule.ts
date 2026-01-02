@@ -1,11 +1,19 @@
-import { NativeModule, requireNativeModule } from 'expo';
+import { NativeModule, requireNativeModule } from "expo";
 
-import { ReactNativeAlarmkitModuleEvents } from './ReactNativeAlarmkit.types';
+import { ReactNativeAlarmkitModuleEvents } from "./ReactNativeAlarmkit.types";
 
 declare class ReactNativeAlarmkitModule extends NativeModule<ReactNativeAlarmkitModuleEvents> {
-  hello(): string;
   requestAuthorization(): Promise<boolean>;
+  scheduleAlarm(
+    hour: number,
+    minute: number,
+    repeats: boolean
+  ): Promise<string>;
+  listAlarms(): Promise<[]>;
+  cancelAlarm(id: string): Promise<void>; // TODO: implement in native code
+  cancelAllAlarms(): Promise<void>;
 }
 
-// This call loads the native module object from the JSI.
-export default requireNativeModule<ReactNativeAlarmkitModule>('ReactNativeAlarmkit');
+export default requireNativeModule<ReactNativeAlarmkitModule>(
+  "ReactNativeAlarmkit"
+);
