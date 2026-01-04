@@ -1,6 +1,6 @@
 {
   "name": "react-native-alarmkit",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "React Native Alarm kit",
   "main": "build/index.js",
   "types": "build/index.d.ts",
