@@ -1,8 +1,28 @@
 # react-native-alarmkit
 
-A React Native module that provides native alarm scheduling capabilities using iOS 26's AlarmKit framework. Schedule one-time or recurring alarms with custom UI presentations.
+> ## 🚧 Under Construction 🚧
+>
+> ⚠️ **This library is currently under active development and is not yet production-ready.**
+>
+> - 🔨 APIs may change without notice
+> - 📝 Documentation is being improved
+> - 🐛 Known issues are being addressed
+> - ✨ New features are being added
+>
+> **Use at your own risk in production environments.**
 
-## Features
+A React Native module that provides native alarm scheduling capabilities using iOS 26's AlarmKit framework. Create powerful, system-level alarms with one-time or recurring schedules and custom UI presentations.
+
+## Platform Support
+
+| Platform | Status         | Minimum Version |
+| -------- | -------------- | --------------- |
+| iOS      | ✅ Supported   | iOS 26.0+       |
+| Android  | 🔜 Coming Soon | TBA             |
+
+**Note:** Android support is planned for a future release.
+
+## ✨ Features
 
 - ✅ Schedule alarms at specific times (24-hour format)
 - ✅ One-time or recurring alarms (weekly schedule)
@@ -95,9 +115,20 @@ const alarmId = await ReactNativeAlarmkit.scheduleAlarm(
 ```typescript
 // Schedule alarm for 6:00 AM every day
 const alarmId = await ReactNativeAlarmkit.scheduleAlarm(
-  6,
-  0,
-  [1, 2, 3, 4, 5, 6, 7] // All days
+  6, // hour (6:00 AM)
+  0, // minute
+  [1, 2, 3, 4, 5, 6, 7] // All days of the week
+);
+```
+
+#### Weekends Only
+
+```typescript
+// Schedule alarm for 9:00 AM on weekends
+const alarmId = await ReactNativeAlarmkit.scheduleAlarm(
+  9, // hour (9:00 AM)
+  0, // minute
+  [1, 7] // 1=Sunday, 7=Saturday
 );
 ```
 
@@ -115,6 +146,10 @@ const alarms = ReactNativeAlarmkit.listAlarms();
 //   }
 // ]
 ```
+
+### Canel an Alarm
+
+TODO
 
 ### Cancel All Alarms
 
@@ -188,7 +223,7 @@ All times use **24-hour format**:
 
 ## Platform Support
 
-Currently **iOS only** (requires iOS 26.0+). Android support is not available as AlarmKit is an iOS-exclusive framework.
+Currently **iOS only** (requires iOS 26.0+). Android support to be added at some point in the near feature
 
 ## Contributing
 
