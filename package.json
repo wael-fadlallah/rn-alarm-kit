@@ -1,7 +1,7 @@
 {
   "name": "react-native-alarmkit",
   "version": "0.0.1",
-  "description": "React Native Alarm kit",
+  "description": "A React Native module that provides native alarm scheduling capabilities",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
