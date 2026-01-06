@@ -1,2 +1,2 @@
-export { default } from "./ReactNativeAlarmkitModule";
-export * from "./ReactNativeAlarmkit.types";
+export { default } from "./RNAlarmKitModule";
+export * from "./RNAlarmKit.types";

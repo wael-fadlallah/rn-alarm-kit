@@ -1,4 +1,4 @@
-export type ReactNativeAlarmkitModuleEvents = {
+export type AlarmkitModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
 };
 

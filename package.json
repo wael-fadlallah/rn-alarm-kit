@@ -1,5 +1,5 @@
 {
-  "name": "react-native-alarmkit",
+  "name": "rn-alarm-kit",
   "version": "0.0.1",
   "description": "A React Native module that provides native alarm scheduling capabilities",
   "main": "build/index.js",
@@ -18,16 +18,16 @@
   "keywords": [
     "react-native",
     "expo",
-    "react-native-alarmkit",
+    "rn-alarm-kit",
     "ReactNativeAlarmkit"
   ],
-  "repository": "https://github.com/wael-fadlallah/react-native-alarmkit",
+  "repository": "https://github.com/wael-fadlallah/rn-alarm-kit",
   "bugs": {
-    "url": "https://github.com/wael-fadlallah/react-native-alarmkit/issues"
+    "url": "https://github.com/wael-fadlallah/rn-alarm-kit/issues"
   },
   "author": "wael-fadlallah <wael.fudlallah@gmail.com> (https://github.com/wael-fadlallah)",
   "license": "MIT",
-  "homepage": "https://github.com/wael-fadlallah/react-native-alarmkit#readme",
+  "homepage": "https://github.com/wael-fadlallah/rn-alarm-kit#readme",
   "dependencies": {},
   "devDependencies": {
     "@types/react": "~19.1.0",

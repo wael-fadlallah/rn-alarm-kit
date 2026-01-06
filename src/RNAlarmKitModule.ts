@@ -1,8 +1,8 @@
 import { NativeModule, requireNativeModule } from "expo";
 
-import { ReactNativeAlarmkitModuleEvents } from "./ReactNativeAlarmkit.types";
+import { AlarmkitModuleEvents } from "./RNAlarmKit.types";
 
-declare class ReactNativeAlarmkitModule extends NativeModule<ReactNativeAlarmkitModuleEvents> {
+declare class AlarmkitModule extends NativeModule<AlarmkitModuleEvents> {
   requestAuthorization(): Promise<boolean>;
   scheduleAlarm(
     hour: number,
@@ -14,6 +14,4 @@ declare class ReactNativeAlarmkitModule extends NativeModule<ReactNativeAlarmkit
   cancelAllAlarms(): Promise<void>;
 }
 
-export default requireNativeModule<ReactNativeAlarmkitModule>(
-  "ReactNativeAlarmkit"
-);
+export default requireNativeModule<AlarmkitModule>("RNAlarmKit");

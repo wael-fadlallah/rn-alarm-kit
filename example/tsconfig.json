@@ -3,8 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "react-native-alarmkit": ["../src/index"],
-      "react-native-alarmkit/*": ["../src/*"]
+      "rn-alarm-kit": ["../src/index"],
+      "rn-alarm-kit/*": ["../src/*"]
     }
   }
 }

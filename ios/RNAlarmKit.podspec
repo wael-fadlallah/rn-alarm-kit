@@ -3,7 +3,7 @@ require 'json'
 package = JSON.parse(File.read(File.join(__dir__, '..', 'package.json')))
 
 Pod::Spec.new do |s|
-  s.name           = 'ReactNativeAlarmkit'
+  s.name           = 'RNAlarmKit'
   s.version        = package['version']
   s.summary        = package['description']
   s.description    = package['description']
@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
     :ios => '26.0',
   }
   s.swift_version  = '5.9'
-  s.source         = { git: 'https://github.com/wael-fadlallah/react-native-alarmkit' }
+  s.source         = { git: 'https://github.com/wael-fadlallah/rn-alarm-kit' }
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'

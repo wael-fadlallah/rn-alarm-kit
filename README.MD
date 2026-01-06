@@ -1,4 +1,4 @@
-# react-native-alarmkit
+# rn-alarm-kit
 
 > ## 🚧 Under Construction 🚧
 >
@@ -41,13 +41,13 @@ A React Native module that provides native alarm scheduling capabilities using i
 ## Installation
 
 ```bash
-npm install react-native-alarmkit
+npm install rn-alarm-kit
 ```
 
 Or with yarn:
 
 ```bash
-yarn add react-native-alarmkit
+yarn add rn-alarm-kit
 ```
 
 ### iOS Setup
@@ -78,7 +78,7 @@ cd ios && pod install
 Before scheduling alarms, request user authorization:
 
 ```typescript
-import ReactNativeAlarmkit from "react-native-alarmkit";
+import ReactNativeAlarmkit from "rn-alarm-kit";
 
 const authorized = await ReactNativeAlarmkit.requestAuthorization();
 if (authorized) {
@@ -239,6 +239,6 @@ Wael Fadlallah ([@wael-fadlallah](https://github.com/wael-fadlallah))
 
 ## Links
 
-- [GitHub Repository](https://github.com/wael-fadlallah/react-native-alarmkit)
-- [Report Issues](https://github.com/wael-fadlallah/react-native-alarmkit/issues)
+- [GitHub Repository](https://github.com/wael-fadlallah/rn-alarm-kit)
+- [Report Issues](https://github.com/wael-fadlallah/rn-alarm-kit/issues)
 - [Apple AlarmKit Documentation](https://developer.apple.com/documentation/alarmkit)

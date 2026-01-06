@@ -1,4 +1,4 @@
-import ReactNativeAlarmkit from "react-native-alarmkit";
+import ReactNativeAlarmkit from "rn-alarm-kit";
 import {
   Button,
   SafeAreaView,

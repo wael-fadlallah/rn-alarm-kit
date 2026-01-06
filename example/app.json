@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "react-native-alarmkit-example",
-    "slug": "react-native-alarmkit-example",
+    "name": "rn-alarm-kit-example",
+    "slug": "rn-alarm-kit-example",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

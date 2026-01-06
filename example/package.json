@@ -1,12 +1,12 @@
 {
-  "name": "react-native-alarmkit-example",
+  "name": "rn-alarm-kit-example",
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web"
+    "ios": "expo run:ios --device 'iPhone 17 Pro Max'",
+    "nuke": "rm -rf node_modules ios/Pods ios/build .expo && yarn && npx expo prebuild --clean --platform ios && yarn ios"
   },
   "dependencies": {
     "expo": "~54.0.12",

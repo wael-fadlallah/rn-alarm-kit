@@ -5,11 +5,11 @@ import SwiftUI
 struct EmptyMetadata: AlarmMetadata {}
 
 @available(iOS 26.0, *)
-public class ReactNativeAlarmkitModule: Module {
+public class RNAlarmKitModule: Module {
   let alarmManager = AlarmManager.shared
 
   public func definition() -> ModuleDefinition {
-    Name("ReactNativeAlarmkit")
+    Name("RNAlarmKit")
 
     Function("hello") {
       return "Hello IOS module!!! 👋"
