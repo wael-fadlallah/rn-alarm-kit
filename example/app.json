@@ -14,8 +14,21 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "expo.modules.alarmkit.example"
+      "bundleIdentifier": "expo.modules.alarmkit.example",
+      "infoPlist": {
+        "NSAlarmKitUsageDescription": "This app needs access to schedule alarms for your reminders and notifications."
+      }
     },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "26.0"
+          }
+        }
+      ]
+    ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

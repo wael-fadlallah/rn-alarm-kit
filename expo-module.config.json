@@ -1,6 +1,6 @@
 {
-  "platforms": ["apple"],
-  "apple": {
-    "modules": ["RNAlarmKit"]
+  "platforms": ["ios"],
+  "ios": {
+    "modules": ["RNAlarmKitModule"]
   }
 }
