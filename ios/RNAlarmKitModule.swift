@@ -27,20 +27,31 @@ public class RNAlarmKitModule: Module {
     
     
     
-    AsyncFunction("scheduleAlarm") { (hour: Int, minute: Int, repeatDays: [Int]?) in
+    AsyncFunction("scheduleAlarm") { (hour: Int, minute: Int, repeatDays: [Int]?, config: [String: String]) in
       do {
-        
+
         let id = UUID()
-        
+
+        let title = config["title"] ?? "Alarm"
+        let stopButtonText = config["stopButtonText"] ?? "Stop"
+        let textColorHex = config["textColor"] ?? "#0000FF"
+        let tintColorHex = config["tintColor"] ?? "#FF0000"
+
+        let textColor = colorFromHex(textColorHex)
+        let tintColor = colorFromHex(tintColorHex)
+
+        let titleResource = LocalizedStringResource(stringLiteral: title)
+        let stopButtonTextResource = LocalizedStringResource(stringLiteral: stopButtonText)
+
         let attributes = AlarmAttributes(
           presentation: AlarmPresentation(
             alert: AlarmPresentation.Alert(
-              title: "Hello World!",
-              stopButton: AlarmButton.init(text: "Bye", textColor: Color.blue, systemImageName: "stop.circle")
+              title: titleResource,
+              stopButton: AlarmButton.init(text: stopButtonTextResource, textColor: textColor, systemImageName: "stop.circle")
             )
           ),
           metadata: EmptyMetadata(),
-          tintColor: Color.red
+          tintColor: tintColor
         )
 
         let time = Alarm.Schedule.Relative.Time(
@@ -156,6 +167,20 @@ public class RNAlarmKitModule: Module {
       return weekdays
     }
     return []
+  }
+
+  private func colorFromHex(_ hex: String) -> Color {
+    var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+    hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+
+    var rgb: UInt64 = 0
+    Scanner(string: hexSanitized).scanHexInt64(&rgb)
+
+    let red = Double((rgb & 0xFF0000) >> 16) / 255.0
+    let green = Double((rgb & 0x00FF00) >> 8) / 255.0
+    let blue = Double(rgb & 0x0000FF) / 255.0
+
+    return Color(red: red, green: green, blue: blue)
   }
 }
 

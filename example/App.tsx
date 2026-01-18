@@ -24,6 +24,12 @@ export default function App() {
   const [time, setTime] = useState({ hour: "", minute: "" });
   const [alarms, setAlarms] = useState<{}[]>([]);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [alarmConfig, setAlarmConfig] = useState({
+    title: "Wake Up!",
+    stopButtonText: "Dismiss",
+    textColor: "#FFFFFF",
+    tintColor: "#FF0000",
+  });
 
   const requestAuthorization = async () => {
     try {
@@ -40,7 +46,8 @@ export default function App() {
       const alarmId = await ReactNativeAlarmkit.scheduleAlarm(
         parseInt(time.hour),
         parseInt(time.minute),
-        selectedDays
+        selectedDays,
+        alarmConfig,
       );
       console.log("Alarm scheduled with ID:", alarmId);
       setTime({ hour: "", minute: "" });
@@ -63,7 +70,7 @@ export default function App() {
     setSelectedDays((prev) =>
       prev.includes(dayId)
         ? prev.filter((id) => id !== dayId)
-        : [...prev, dayId]
+        : [...prev, dayId],
     );
   };
 
@@ -82,17 +89,20 @@ export default function App() {
         </Group>
 
         <Group name="Schedule Alarm">
+          <Text style={{ marginTop: 10, marginBottom: 10, fontWeight: "bold" }}>
+            Time:
+          </Text>
           <TextInput
             placeholder="Hour (0-23)"
             keyboardType="numeric"
-            style={{ borderWidth: 1, marginBottom: 10, padding: 5 }}
+            style={styles.input}
             value={time.hour}
             onChangeText={(text) => setTime({ ...time, hour: text })}
           />
           <TextInput
             placeholder="Minute (0-59)"
             keyboardType="numeric"
-            style={{ borderWidth: 1, marginBottom: 10, padding: 5 }}
+            style={styles.input}
             value={time.minute}
             onChangeText={(text) => setTime({ ...time, minute: text })}
           />
@@ -121,6 +131,41 @@ export default function App() {
               </TouchableOpacity>
             ))}
           </View>
+          <Text style={{ marginBottom: 10, fontWeight: "bold" }}>
+            Alarm Appearance:
+          </Text>
+          <TextInput
+            placeholder="Title"
+            style={styles.input}
+            value={alarmConfig.title}
+            onChangeText={(text) =>
+              setAlarmConfig({ ...alarmConfig, title: text })
+            }
+          />
+          <TextInput
+            placeholder="Stop Button Text"
+            style={styles.input}
+            value={alarmConfig.stopButtonText}
+            onChangeText={(text) =>
+              setAlarmConfig({ ...alarmConfig, stopButtonText: text })
+            }
+          />
+          <TextInput
+            placeholder="Text Color (e.g., #FFFFFF)"
+            style={styles.input}
+            value={alarmConfig.textColor}
+            onChangeText={(text) =>
+              setAlarmConfig({ ...alarmConfig, textColor: text })
+            }
+          />
+          <TextInput
+            placeholder="Tint Color (e.g., #FF0000)"
+            style={styles.input}
+            value={alarmConfig.tintColor}
+            onChangeText={(text) =>
+              setAlarmConfig({ ...alarmConfig, tintColor: text })
+            }
+          />
           <Text style={{ fontSize: 12, color: "#666", marginBottom: 10 }}>
             {selectedDays.length === 0
               ? "No repeat (one-time alarm)"
@@ -174,6 +219,14 @@ const styles = {
   view: {
     flex: 1,
     height: 200,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: "#fff",
   },
   daysContainer: {
     flexDirection: "row" as const,
