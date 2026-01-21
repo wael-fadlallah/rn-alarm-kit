@@ -1,18 +1,65 @@
 import ExpoModulesCore
 import AlarmKit
 import SwiftUI
+import AppIntents
 
 struct EmptyMetadata: AlarmMetadata {}
 
 @available(iOS 26.0, *)
+public struct AlarmDismissedIntent: LiveActivityIntent {
+  public static var title: LocalizedStringResource = "Alarm Dismissed"
+  public static var openAppWhenRun: Bool = true
+
+  @Parameter(title: "alarmID")
+  public var alarmIdentifier: String
+
+  public init() {
+    self.alarmIdentifier = ""
+  }
+
+  public init(alarmIdentifier: String) {
+    self.alarmIdentifier = alarmIdentifier
+  }
+
+  public func perform() async throws -> some IntentResult {
+    NotificationCenter.default.post(
+      name: NSNotification.Name("AlarmDismissed"),
+      object: nil,
+      userInfo: ["alarmID": alarmIdentifier]
+    )
+    return .result()
+  }
+}
+
+@available(iOS 26.0, *)
 public class RNAlarmKitModule: Module {
   let alarmManager = AlarmManager.shared
+  private var notificationObserver: NSObjectProtocol?
 
   public func definition() -> ModuleDefinition {
     Name("RNAlarmKit")
 
-    Function("hello") {
-      return "Hello IOS module!!! 👋"
+    Events("onAlarmDismissed")
+
+    OnCreate {
+      // Listen for alarm dismissed notifications from the AppIntent
+      self.notificationObserver = NotificationCenter.default.addObserver(
+        forName: NSNotification.Name("AlarmDismissed"),
+        object: nil,
+        queue: .main
+      ) { [weak self] notification in
+        if let alarmID = notification.userInfo?["alarmID"] as? String {
+          self?.sendEvent("onAlarmDismissed", [
+            "alarmId": alarmID
+          ])
+        }
+      }
+    }
+
+    OnDestroy {
+      if let observer = self.notificationObserver {
+        NotificationCenter.default.removeObserver(observer)
+      }
     }
 
     AsyncFunction("requestAuthorization") {
@@ -24,14 +71,11 @@ public class RNAlarmKitModule: Module {
           return false
         }
     }
-    
-    
-    
+
     AsyncFunction("scheduleAlarm") { (hour: Int, minute: Int, repeatDays: [Int]?, config: [String: String]) in
       do {
 
         let id = UUID()
-
         let title = config["title"] ?? "Alarm"
         let stopButtonText = config["stopButtonText"] ?? "Stop"
         let textColorHex = config["textColor"] ?? "#0000FF"
@@ -42,12 +86,16 @@ public class RNAlarmKitModule: Module {
 
         let titleResource = LocalizedStringResource(stringLiteral: title)
         let stopButtonTextResource = LocalizedStringResource(stringLiteral: stopButtonText)
-
+        
         let attributes = AlarmAttributes(
           presentation: AlarmPresentation(
             alert: AlarmPresentation.Alert(
               title: titleResource,
-              stopButton: AlarmButton.init(text: stopButtonTextResource, textColor: textColor, systemImageName: "stop.circle")
+              stopButton: AlarmButton(
+                text: stopButtonTextResource,
+                textColor: textColor,
+                systemImageName: "stop.circle"
+              )
             )
           ),
           metadata: EmptyMetadata(),
@@ -61,17 +109,20 @@ public class RNAlarmKitModule: Module {
         let cadence: Alarm.Schedule.Relative.Recurrence = (repeatDays != nil && !repeatDays!.isEmpty)
         ? .weekly(weekdayFromInt(days: repeatDays!))
         : .never
-        
+
         let schedule = Alarm.Schedule.relative(.init(
           time: time,
           repeats: cadence
         ))
 
+        let dismissIntent = AlarmDismissedIntent(alarmIdentifier: id.uuidString)
+
         let alarmConfiguration = AlarmManager.AlarmConfiguration(
           schedule: schedule,
-          attributes: attributes
+          attributes: attributes,
+          stopIntent: dismissIntent
         )
-  
+
         let alarm = try await alarmManager.schedule(id: id, configuration: alarmConfiguration)
         print(alarm.schedule.debugDescription)
         return alarm.id.uuidString

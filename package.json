@@ -1,6 +1,6 @@
 {
   "name": "rn-alarm-kit",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A React Native module that provides native alarm scheduling capabilities",
   "main": "build/index.js",
   "types": "build/index.d.ts",

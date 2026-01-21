@@ -1,5 +1,6 @@
 import ReactNativeAlarmkit from "rn-alarm-kit";
 import {
+  Alert,
   Button,
   SafeAreaView,
   ScrollView,
@@ -8,7 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const WEEKDAYS = [
   { id: 1, name: "Sun", fullName: "Sunday" },
@@ -24,12 +25,29 @@ export default function App() {
   const [time, setTime] = useState({ hour: "", minute: "" });
   const [alarms, setAlarms] = useState<{}[]>([]);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [dismissedAlarmId, setDismissedAlarmId] = useState<string | null>(null);
   const [alarmConfig, setAlarmConfig] = useState({
     title: "Wake Up!",
     stopButtonText: "Dismiss",
     textColor: "#FFFFFF",
     tintColor: "#FF0000",
   });
+
+  useEffect(() => {
+    const subscription = ReactNativeAlarmkit.addListener(
+      "onAlarmDismissed",
+      (event) => {
+        console.log("Alarm dismissed:", event.alarmId);
+        setDismissedAlarmId(event.alarmId);
+        Alert.alert(
+          "Alarm Dismissed",
+          `Alarm ${event.alarmId} was dismissed. The app was launched!`,
+        );
+      },
+    );
+
+    return () => subscription.remove();
+  }, []);
 
   const requestAuthorization = async () => {
     try {
@@ -183,6 +201,15 @@ export default function App() {
         <Group name="Cancel All Alarms">
           <Button title="Cancel All Alarms" onPress={handleClearAlarms} />
         </Group>
+
+        {dismissedAlarmId && (
+          <Group name="Last Dismissed Alarm">
+            <Text>Alarm ID: {dismissedAlarmId}</Text>
+            <Text style={{ fontSize: 12, color: "#666", marginTop: 5 }}>
+              The app was launched when this alarm was dismissed!
+            </Text>
+          </Group>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
