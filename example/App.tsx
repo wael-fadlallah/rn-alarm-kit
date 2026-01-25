@@ -198,6 +198,23 @@ export default function App() {
           <Text>{JSON.stringify(listAlarms(), null, 2)}</Text>
         </Group>
 
+        <Group name="Cancel an Alarm">
+          <TextInput
+            placeholder="Alarm ID to Cancel"
+            keyboardType="numeric"
+            style={styles.input}
+            onChangeText={async (alarmId) => {
+              try {
+                await ReactNativeAlarmkit.cancelAlarm(alarmId);
+                setAlarms((prev) => prev.filter((alarm) => alarm !== alarmId));
+                console.log(`Alarm ${alarmId} cancelled`);
+              } catch (error) {
+                console.error("Failed to cancel alarm", error);
+              }
+            }}
+          />
+        </Group>
+
         <Group name="Cancel All Alarms">
           <Button title="Cancel All Alarms" onPress={handleClearAlarms} />
         </Group>

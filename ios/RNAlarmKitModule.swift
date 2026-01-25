@@ -185,6 +185,19 @@ public class RNAlarmKitModule: Module {
       }
     }
 
+    AsyncFunction("cancelAlarm") { (alarmId: String) in
+      guard let uuid = UUID(uuidString: alarmId) else {
+        throw NSError(domain: "RNAlarmKit", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid UUID string"])
+      }
+      do {
+        try alarmManager.cancel(id: uuid)
+        return ["success": true]
+      } catch {
+        print("Error cancelling alarm: \(error)")
+        throw error
+      }
+    }
+
 
   }
   
