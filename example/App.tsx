@@ -8,8 +8,10 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 
 const WEEKDAYS = [
   { id: 1, name: "Sun", fullName: "Sunday" },
@@ -24,6 +26,7 @@ const WEEKDAYS = [
 export default function App() {
   const [time, setTime] = useState({ hour: "", minute: "" });
   const [alarms, setAlarms] = useState<{}[]>([]);
+  const [alarmIdToCancel, setAlarmIdToCancel] = useState("");
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [dismissedAlarmId, setDismissedAlarmId] = useState<string | null>(null);
   const [alarmConfig, setAlarmConfig] = useState({
@@ -48,6 +51,10 @@ export default function App() {
 
     return () => subscription.remove();
   }, []);
+
+  useEffect(() => {
+    listAlarms();
+  }, [alarmIdToCancel]);
 
   const requestAuthorization = async () => {
     try {
@@ -75,13 +82,27 @@ export default function App() {
     }
   };
 
-  const listAlarms = () => {
-    return ReactNativeAlarmkit.listAlarms();
+  const listAlarms = async () => {
+    const scheduledAlarms = await ReactNativeAlarmkit.listAlarms();
+    setAlarms(scheduledAlarms);
   };
 
   const handleClearAlarms = async () => {
     await ReactNativeAlarmkit.cancelAllAlarms();
     setAlarms([]);
+  };
+
+  const handleClearAlarm = async () => {
+    try {
+      await ReactNativeAlarmkit.cancelAlarm(alarmIdToCancel);
+      setAlarms((prev) =>
+        prev.filter((alarm: any) => alarm.id !== alarmIdToCancel),
+      );
+      setAlarmIdToCancel("");
+      console.log(`Alarm ${alarmIdToCancel} cancelled`);
+    } catch (error) {
+      console.error("Failed to cancel alarm", error);
+    }
   };
 
   const toggleDay = (dayId: number) => {
@@ -94,140 +115,145 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.container}>
-        <Text style={styles.header}>
-          ReactNativeAlarmkit Module API Example
-        </Text>
-
-        <Group name="Request Authorization">
-          <Button
-            title="Request Authorization"
-            onPress={requestAuthorization}
-          />
-        </Group>
-
-        <Group name="Schedule Alarm">
-          <Text style={{ marginTop: 10, marginBottom: 10, fontWeight: "bold" }}>
-            Time:
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView style={styles.container}>
+          <Text style={styles.header}>
+            ReactNativeAlarmkit Module API Example
           </Text>
-          <TextInput
-            placeholder="Hour (0-23)"
-            keyboardType="numeric"
-            style={styles.input}
-            value={time.hour}
-            onChangeText={(text) => setTime({ ...time, hour: text })}
-          />
-          <TextInput
-            placeholder="Minute (0-59)"
-            keyboardType="numeric"
-            style={styles.input}
-            value={time.minute}
-            onChangeText={(text) => setTime({ ...time, minute: text })}
-          />
 
-          <Text style={{ marginTop: 10, marginBottom: 10, fontWeight: "bold" }}>
-            Repeat on:
-          </Text>
-          <View style={styles.daysContainer}>
-            {WEEKDAYS.map((day) => (
-              <TouchableOpacity
-                key={day.id}
-                style={[
-                  styles.dayButton,
-                  selectedDays.includes(day.id) && styles.dayButtonSelected,
-                ]}
-                onPress={() => toggleDay(day.id)}
-              >
-                <Text
-                  style={[
-                    styles.dayText,
-                    selectedDays.includes(day.id) && styles.dayTextSelected,
-                  ]}
-                >
-                  {day.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <Text style={{ marginBottom: 10, fontWeight: "bold" }}>
-            Alarm Appearance:
-          </Text>
-          <TextInput
-            placeholder="Title"
-            style={styles.input}
-            value={alarmConfig.title}
-            onChangeText={(text) =>
-              setAlarmConfig({ ...alarmConfig, title: text })
-            }
-          />
-          <TextInput
-            placeholder="Stop Button Text"
-            style={styles.input}
-            value={alarmConfig.stopButtonText}
-            onChangeText={(text) =>
-              setAlarmConfig({ ...alarmConfig, stopButtonText: text })
-            }
-          />
-          <TextInput
-            placeholder="Text Color (e.g., #FFFFFF)"
-            style={styles.input}
-            value={alarmConfig.textColor}
-            onChangeText={(text) =>
-              setAlarmConfig({ ...alarmConfig, textColor: text })
-            }
-          />
-          <TextInput
-            placeholder="Tint Color (e.g., #FF0000)"
-            style={styles.input}
-            value={alarmConfig.tintColor}
-            onChangeText={(text) =>
-              setAlarmConfig({ ...alarmConfig, tintColor: text })
-            }
-          />
-          <Text style={{ fontSize: 12, color: "#666", marginBottom: 10 }}>
-            {selectedDays.length === 0
-              ? "No repeat (one-time alarm)"
-              : `Repeats: ${WEEKDAYS.filter((d) => selectedDays.includes(d.id))
-                  .map((d) => d.fullName)
-                  .join(", ")}`}
-          </Text>
-          <Button title="Schedule Alarm" onPress={scheduleAlarm} />
-        </Group>
-
-        <Group name="List Alarms">
-          <Text>{JSON.stringify(listAlarms(), null, 2)}</Text>
-        </Group>
-
-        <Group name="Cancel an Alarm">
-          <TextInput
-            placeholder="Alarm ID to Cancel"
-            keyboardType="numeric"
-            style={styles.input}
-            onChangeText={async (alarmId) => {
-              try {
-                await ReactNativeAlarmkit.cancelAlarm(alarmId);
-                setAlarms((prev) => prev.filter((alarm) => alarm !== alarmId));
-                console.log(`Alarm ${alarmId} cancelled`);
-              } catch (error) {
-                console.error("Failed to cancel alarm", error);
-              }
-            }}
-          />
-        </Group>
-
-        <Group name="Cancel All Alarms">
-          <Button title="Cancel All Alarms" onPress={handleClearAlarms} />
-        </Group>
-
-        {dismissedAlarmId && (
-          <Group name="Last Dismissed Alarm">
-            <Text>Alarm ID: {dismissedAlarmId}</Text>
-            <Text style={{ fontSize: 12, color: "#666", marginTop: 5 }}>
-              The app was launched when this alarm was dismissed!
-            </Text>
+          <Group name="Request Authorization">
+            <Button
+              title="Request Authorization"
+              onPress={requestAuthorization}
+            />
           </Group>
-        )}
-      </ScrollView>
+
+          <Group name="Schedule Alarm">
+            <Text
+              style={{ marginTop: 10, marginBottom: 10, fontWeight: "bold" }}
+            >
+              Time:
+            </Text>
+            <TextInput
+              placeholder="Hour (0-23)"
+              keyboardType="numeric"
+              style={styles.input}
+              value={time.hour}
+              onChangeText={(text) => setTime({ ...time, hour: text })}
+            />
+            <TextInput
+              placeholder="Minute (0-59)"
+              keyboardType="numeric"
+              style={styles.input}
+              value={time.minute}
+              onChangeText={(text) => setTime({ ...time, minute: text })}
+            />
+
+            <Text
+              style={{ marginTop: 10, marginBottom: 10, fontWeight: "bold" }}
+            >
+              Repeat on:
+            </Text>
+            <View style={styles.daysContainer}>
+              {WEEKDAYS.map((day) => (
+                <TouchableOpacity
+                  key={day.id}
+                  style={[
+                    styles.dayButton,
+                    selectedDays.includes(day.id) && styles.dayButtonSelected,
+                  ]}
+                  onPress={() => toggleDay(day.id)}
+                >
+                  <Text
+                    style={[
+                      styles.dayText,
+                      selectedDays.includes(day.id) && styles.dayTextSelected,
+                    ]}
+                  >
+                    {day.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={{ marginBottom: 10, fontWeight: "bold" }}>
+              Alarm Appearance:
+            </Text>
+            <TextInput
+              placeholder="Title"
+              style={styles.input}
+              value={alarmConfig.title}
+              onChangeText={(text) =>
+                setAlarmConfig({ ...alarmConfig, title: text })
+              }
+            />
+            <TextInput
+              placeholder="Stop Button Text"
+              style={styles.input}
+              value={alarmConfig.stopButtonText}
+              onChangeText={(text) =>
+                setAlarmConfig({ ...alarmConfig, stopButtonText: text })
+              }
+            />
+            <TextInput
+              placeholder="Text Color (e.g., #FFFFFF)"
+              style={styles.input}
+              value={alarmConfig.textColor}
+              onChangeText={(text) =>
+                setAlarmConfig({ ...alarmConfig, textColor: text })
+              }
+            />
+            <TextInput
+              placeholder="Tint Color (e.g., #FF0000)"
+              style={styles.input}
+              value={alarmConfig.tintColor}
+              onChangeText={(text) =>
+                setAlarmConfig({ ...alarmConfig, tintColor: text })
+              }
+            />
+            <Text style={{ fontSize: 12, color: "#666", marginBottom: 10 }}>
+              {selectedDays.length === 0
+                ? "No repeat (one-time alarm)"
+                : `Repeats: ${WEEKDAYS.filter((d) =>
+                    selectedDays.includes(d.id),
+                  )
+                    .map((d) => d.fullName)
+                    .join(", ")}`}
+            </Text>
+            <Button title="Schedule Alarm" onPress={scheduleAlarm} />
+          </Group>
+
+          <Group name="List Alarms">
+            <Text>{JSON.stringify(alarms, null, 2)}</Text>
+          </Group>
+
+          <Group name="Cancel an Alarm">
+            <TextInput
+              placeholder="Alarm ID to Cancel"
+              keyboardType="numeric"
+              style={styles.input}
+              onChangeText={setAlarmIdToCancel}
+              value={alarmIdToCancel}
+            />
+            <Button title="Cancel Alarm" onPress={handleClearAlarm} />
+          </Group>
+
+          <Group name="Cancel All Alarms">
+            <Button title="Cancel All Alarms" onPress={handleClearAlarms} />
+          </Group>
+
+          {dismissedAlarmId && (
+            <Group name="Last Dismissed Alarm">
+              <Text>Alarm ID: {dismissedAlarmId}</Text>
+              <Text style={{ fontSize: 12, color: "#666", marginTop: 5 }}>
+                The app was launched when this alarm was dismissed!
+              </Text>
+            </Group>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

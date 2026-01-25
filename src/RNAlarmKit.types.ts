@@ -16,3 +16,9 @@ export type AlarmConfig = {
   textColor: string;
   tintColor: string;
 };
+
+export type AlarmInfo = {
+  id: string;
+  state: string;
+  scheduledTime: string;
+};
