@@ -77,6 +77,7 @@ export default function App() {
       console.log("Alarm scheduled with ID:", alarmId);
       setTime({ hour: "", minute: "" });
       setSelectedDays([]);
+      listAlarms();
     } catch (error) {
       console.error("Failed to schedule alarm", error);
     }

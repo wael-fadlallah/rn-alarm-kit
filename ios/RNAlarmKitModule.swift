@@ -135,37 +135,23 @@ public class RNAlarmKitModule: Module {
     Function("listAlarms") {
       do {
         let alarms = try alarmManager.alarms
-        return alarms.map { alarm in
-          var scheduleInfo = "N/A"
-          
-          // Extract schedule information
-          if case .relative(let relativeSchedule) = alarm.schedule {
-            let hour = relativeSchedule.time.hour
-            let minute = relativeSchedule.time.minute
-            let timeString = String(format: "%02d:%02d", hour, minute)
-            
-            // Check repeats
-            switch relativeSchedule.repeats {
-            case .never:
-              scheduleInfo = "\(timeString) (Once)"
-            case .weekly(let weekdays):
-              let dayNames = weekdays.map { weekdayToString($0) }.joined(separator: ", ")
-              scheduleInfo = "\(timeString) (\(dayNames))"
-            @unknown default:
-              scheduleInfo = timeString
-            }
-          }
-          
-          return [
-            "id": alarm.id.uuidString,
-            "state": String(describing: alarm.state),
-            "scheduledTime": scheduleInfo
-          ]
-        }
+        return alarms.map { alarmToDict($0) }
       } catch {
         print("Error listing alarms: \(error)")
         throw error
       }
+    }
+
+    AsyncFunction("getAlarm") { (alarmId: String) -> [String: String]? in
+      guard let uuid = UUID(uuidString: alarmId) else {
+        return nil
+      }
+
+      let alarms = try alarmManager.alarms
+      if let alarm = alarms.first(where: { $0.id == uuid }) {
+        return alarmToDict(alarm)
+      }
+      return nil
     }
     
     Function("cancelAllAlarms") {
@@ -201,6 +187,32 @@ public class RNAlarmKitModule: Module {
 
   }
   
+  private func alarmToDict(_ alarm: Alarm) -> [String: String] {
+    var scheduleInfo = "N/A"
+
+    if case .relative(let relativeSchedule) = alarm.schedule {
+      let hour = relativeSchedule.time.hour
+      let minute = relativeSchedule.time.minute
+      let timeString = String(format: "%02d:%02d", hour, minute)
+
+      switch relativeSchedule.repeats {
+      case .never:
+        scheduleInfo = "\(timeString) (Once)"
+      case .weekly(let weekdays):
+        let dayNames = weekdays.map { weekdayToString($0) }.joined(separator: ", ")
+        scheduleInfo = "\(timeString) (\(dayNames))"
+      @unknown default:
+        scheduleInfo = timeString
+      }
+    }
+
+    return [
+      "id": alarm.id.uuidString,
+      "state": String(describing: alarm.state),
+      "scheduledTime": scheduleInfo
+    ]
+  }
+
   private func weekdayToString(_ weekday: Locale.Weekday) -> String {
     switch weekday {
     case .sunday: return "Sun"
