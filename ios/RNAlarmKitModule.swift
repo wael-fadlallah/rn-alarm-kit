@@ -74,12 +74,12 @@ public class RNAlarmKitModule: Module {
 
     AsyncFunction("scheduleAlarm") { (hour: Int, minute: Int, repeatDays: [Int]?, config: [String: String]) in
       do {
-
         let id = UUID()
         let title = config["title"] ?? "Alarm"
         let stopButtonText = config["stopButtonText"] ?? "Stop"
         let textColorHex = config["textColor"] ?? "#0000FF"
         let tintColorHex = config["tintColor"] ?? "#FF0000"
+        let dismissIntent = AlarmDismissedIntent(alarmIdentifier: id.uuidString)
 
         let textColor = colorFromHex(textColorHex)
         let tintColor = colorFromHex(tintColorHex)
@@ -115,12 +115,13 @@ public class RNAlarmKitModule: Module {
           repeats: cadence
         ))
 
-        let dismissIntent = AlarmDismissedIntent(alarmIdentifier: id.uuidString)
 
         let alarmConfiguration = AlarmManager.AlarmConfiguration(
           schedule: schedule,
           attributes: attributes,
-          stopIntent: dismissIntent
+          stopIntent: dismissIntent,
+          secondaryIntent: dismissIntent,
+          
         )
 
         let alarm = try await alarmManager.schedule(id: id, configuration: alarmConfiguration)
