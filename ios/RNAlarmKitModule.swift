@@ -35,11 +35,13 @@ public struct AlarmDismissedIntent: LiveActivityIntent {
 public class RNAlarmKitModule: Module {
   let alarmManager = AlarmManager.shared
   private var notificationObserver: NSObjectProtocol?
+  private var alarmUpdatesTask: Task<Void, Never>?
+  private var alertingAlarmIds: Set<String> = []
 
   public func definition() -> ModuleDefinition {
     Name("RNAlarmKit")
 
-    Events("onAlarmDismissed")
+    Events("onAlarmDismissed", "onAlarmFired")
 
     OnCreate {
       // Listen for alarm dismissed notifications from the AppIntent
@@ -54,12 +56,42 @@ public class RNAlarmKitModule: Module {
           ])
         }
       }
+
+      self.alarmUpdatesTask = Task { [weak self] in
+        guard let self = self else { return }
+        for await alarms in self.alarmManager.alarmUpdates {
+          if Task.isCancelled { break }
+
+          var currentlyAlerting = Set<String>()
+
+          for alarm in alarms {
+            let alarmIdString = alarm.id.uuidString
+
+            if case .alerting = alarm.state {
+              currentlyAlerting.insert(alarmIdString)
+
+              if !self.alertingAlarmIds.contains(alarmIdString) {
+                DispatchQueue.main.async {
+                  self.sendEvent("onAlarmFired", [
+                    "alarmId": alarmIdString
+                  ])
+                }
+              }
+            }
+          }
+
+          self.alertingAlarmIds = currentlyAlerting
+        }
+      }
     }
 
     OnDestroy {
       if let observer = self.notificationObserver {
         NotificationCenter.default.removeObserver(observer)
       }
+      self.alarmUpdatesTask?.cancel()
+      self.alarmUpdatesTask = nil
+      self.alertingAlarmIds.removeAll()
     }
 
     AsyncFunction("requestAuthorization") {

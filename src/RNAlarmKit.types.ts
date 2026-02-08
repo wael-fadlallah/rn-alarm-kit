@@ -1,5 +1,10 @@
+export type AlarmFiredPayload = {
+  alarmId: string;
+};
+
 export type AlarmkitModuleEvents = {
   onAlarmDismissed: (params: AlarmDismissedPayload) => void;
+  onAlarmFired: (params: AlarmFiredPayload) => void;
 };
 
 export type ChangeEventPayload = {

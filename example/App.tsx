@@ -49,7 +49,18 @@ export default function App() {
       },
     );
 
-    return () => subscription.remove();
+    const onAlarmFiredSubscription = ReactNativeAlarmkit.addListener(
+      "onAlarmFired",
+      (event) => {
+        console.log("Alarm fired:", event.alarmId);
+        Alert.alert("Alarm Fired", `Alarm ${event.alarmId} is firing now!`);
+      },
+    );
+
+    return () => {
+      subscription.remove();
+      onAlarmFiredSubscription.remove();
+    };
   }, []);
 
   useEffect(() => {
