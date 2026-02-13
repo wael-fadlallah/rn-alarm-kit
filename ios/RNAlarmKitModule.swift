@@ -3,7 +3,18 @@ import AlarmKit
 import SwiftUI
 import AppIntents
 
-struct EmptyMetadata: AlarmMetadata {}
+@available(iOS 26.0, *)
+struct AlarmActivityMetadata: AlarmMetadata, Codable, Hashable, Sendable {
+    var title: String
+    var subtitle: String?
+    var alarmTime: String  // Formatted time like "7:30 AM"
+
+    init(title: String, subtitle: String? = nil, alarmTime: String) {
+        self.title = title
+        self.subtitle = subtitle
+        self.alarmTime = alarmTime
+    }
+}
 
 @available(iOS 26.0, *)
 public struct AlarmDismissedIntent: LiveActivityIntent {
@@ -108,6 +119,7 @@ public class RNAlarmKitModule: Module {
       do {
         let id = UUID()
         let title = config["title"] ?? "Alarm"
+        let subtitle = config["subtitle"]
         let stopButtonText = config["stopButtonText"] ?? "Stop"
         let textColorHex = config["textColor"] ?? "#0000FF"
         let tintColorHex = config["tintColor"] ?? "#FF0000"
@@ -118,7 +130,26 @@ public class RNAlarmKitModule: Module {
 
         let titleResource = LocalizedStringResource(stringLiteral: title)
         let stopButtonTextResource = LocalizedStringResource(stringLiteral: stopButtonText)
-        
+
+        // Format the alarm time for display in Dynamic Island
+        var alarmDateComponents = DateComponents()
+        alarmDateComponents.hour = hour
+        alarmDateComponents.minute = minute
+        let calendar = Calendar.current
+        let alarmDate = calendar.date(from: alarmDateComponents) ?? Date()
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
+        let alarmTimeString = timeFormatter.string(from: alarmDate)
+
+        // Create metadata with Dynamic Island content
+        let metadata = AlarmActivityMetadata(
+            title: title,
+            subtitle: subtitle,
+            alarmTime: alarmTimeString
+        )
+
         let attributes = AlarmAttributes(
           presentation: AlarmPresentation(
             alert: AlarmPresentation.Alert(
@@ -130,7 +161,7 @@ public class RNAlarmKitModule: Module {
               )
             )
           ),
-          metadata: EmptyMetadata(),
+          metadata: metadata,
           tintColor: tintColor
         )
 

@@ -34,6 +34,7 @@ export default function App() {
     stopButtonText: "Dismiss",
     textColor: "#FFFFFF",
     tintColor: "#FF0000",
+    subtitle: "Morning Alarm",
   });
 
   useEffect(() => {
@@ -199,6 +200,14 @@ export default function App() {
               value={alarmConfig.title}
               onChangeText={(text) =>
                 setAlarmConfig({ ...alarmConfig, title: text })
+              }
+            />
+            <TextInput
+              placeholder="Subtitle (optional, for Dynamic Island)"
+              style={styles.input}
+              value={alarmConfig.subtitle}
+              onChangeText={(text) =>
+                setAlarmConfig({ ...alarmConfig, subtitle: text })
               }
             />
             <TextInput

@@ -20,6 +20,7 @@ export type AlarmConfig = {
   stopButtonText: string;
   textColor: string;
   tintColor: string;
+  subtitle?: string;
 };
 
 export type AlarmInfo = {
